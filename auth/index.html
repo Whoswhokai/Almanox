@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Station — Weather Instrument Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: "#E7E2D6",
+              paperraised: "#F1EDE2",
+              ink: "#242220",
+              inksoft: "#6b6459",
+              brass: "#B4823A",
+              brassdark: "#8c6428",
+              teal: "#1E5C60",
+              coral: "#C7562F",
+              line: "#c9c2b2",
+            },
+            spacing: {
+              4.5: "18px",
+            },
+            maxWidth: {
+              panel: "860px",
+            },
+            fontFamily: {
+              display: ["Fraunces", "serif"],
+              sans: ["Inter", "sans-serif"],
+              mono: ['"IBM Plex Mono"', "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="bg-paper text-ink font-sans min-h-screen">
+    <div class="max-w-panel mx-auto px-6 pt-10 pb-20">
+      <header
+        class="flex justify-between items-end border-b border-line pb-4.5 mb-9 gap-4 flex-wrap"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            src="assets/WeatherX LOGO.png"
+            alt="WeatherX logo"
+            class="w-10 h-10 object-contain"
+          />
+          <div class="flex flex-col gap-0.5">
+            <h1
+              class="font-display font-semibold text-[30px] m-0 tracking-[-0.01em]"
+            >
+              WeatherX
+            </h1>
+          </div>
+        </div>
+        <form id="searchForm" class="flex border border-ink bg-paperraised">
+          <input
+            type="text"
+            id="cityInput"
+            placeholder="Enter a city…"
+            autocomplete="off"
+            aria-label="City name"
+            class="font-mono text-[13px] bg-transparent border-none px-3 py-2.5 w-45 text-ink outline-none placeholder:text-inksoft focus-visible:outline-2 focus-visible:outline-teal focus-visible:-outline-offset-2"
+          />
+          <button
+            type="submit"
+            class="font-mono text-xs tracking-[0.06em] uppercase bg-ink text-paper border-none px-4 cursor-pointer transition-colors hover:bg-brassdark focus-visible:outline-2 focus-visible:outline-teal focus-visible:-outline-offset-2"
+          >
+            Read
+          </button>
+        </form>
+      </header>
+
+      <div class="flex gap-2 flex-wrap -mt-4.5 mb-9" id="recentWrap"></div>
+
+      <div
+        class="font-mono text-[13px] py-10 text-center border border-dashed text-inksoft border-line"
+        id="stateMsg"
+      >
+        Enter a city above to take a reading.
+      </div>
+
+      <div class="hidden" id="panel">
+        <div
+          class="grid grid-cols-[1fr_auto] gap-8 items-center py-8 pb-9 border-b border-line mb-7"
+        >
+          <div>
+            <p
+              class="font-display italic text-lg text-inksoft mb-1.5 m-0"
+              id="placeName"
+            >
+              —
+            </p>
+            <div class="flex items-start gap-3.5">
+              <div
+                class="font-mono font-semibold text-[88px] leading-[0.85] tracking-[-0.02em]"
+                id="tempReading"
+              >
+                —°
+              </div>
+              <div
+                class="flex flex-col font-mono text-[13px] border border-ink divide-y divide-ink mt-1.5"
+                id="unitToggle"
+              >
+                <button
+                  type="button"
+                  data-unit="c"
+                  class="bg-ink text-paper px-2 py-1 cursor-pointer"
+                >
+                  °C
+                </button>
+                <button
+                  type="button"
+                  data-unit="f"
+                  class="text-inksoft px-2 py-1 cursor-pointer"
+                >
+                  °F
+                </button>
+              </div>
+            </div>
+            <p class="text-[15px] mt-2 text-ink m-0" id="conditionText">—</p>
+            <p class="font-mono text-xs text-inksoft mt-1 m-0" id="feelsLike">
+              —
+            </p>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <span
+              class="font-mono text-[10px] tracking-[0.14em] uppercase text-inksoft"
+              >Wind</span
+            >
+            <svg
+              class="w-32 h-32"
+              viewBox="0 0 128 128"
+              id="windDial"
+              role="img"
+              aria-label="Wind direction dial"
+            >
+              <circle
+                cx="64"
+                cy="64"
+                r="60"
+                fill="none"
+                stroke="#c9c2b2"
+                stroke-width="1"
+              />
+              <circle
+                cx="64"
+                cy="64"
+                r="46"
+                fill="none"
+                stroke="#c9c2b2"
+                stroke-width="1"
+              />
+              <text
+                x="64"
+                y="14"
+                text-anchor="middle"
+                font-family="IBM Plex Mono"
+                font-size="9"
+                fill="#6b6459"
+              >
+                N
+              </text>
+              <text
+                x="118"
+                y="67"
+                text-anchor="middle"
+                font-family="IBM Plex Mono"
+                font-size="9"
+                fill="#6b6459"
+              >
+                E
+              </text>
+              <text
+                x="64"
+                y="122"
+                text-anchor="middle"
+                font-family="IBM Plex Mono"
+                font-size="9"
+                fill="#6b6459"
+              >
+                S
+              </text>
+              <text
+                x="10"
+                y="67"
+                text-anchor="middle"
+                font-family="IBM Plex Mono"
+                font-size="9"
+                fill="#6b6459"
+              >
+                W
+              </text>
+              <g
+                id="dialNeedle"
+                class="origin-[64px_64px] transition-transform duration-800 ease-[cubic-bezier(0.34,1.2,0.4,1)] motion-reduce:transition-none"
+              >
+                <line
+                  x1="64"
+                  y1="64"
+                  x2="64"
+                  y2="24"
+                  stroke="#C7562F"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="64"
+                  y1="64"
+                  x2="64"
+                  y2="94"
+                  stroke="#1E5C60"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <circle cx="64" cy="64" r="4" fill="#242220" />
+              </g>
+            </svg>
+            <span class="font-mono text-[13px] text-ink" id="dialSpeed"
+              >— km/h</span
+            >
+          </div>
+        </div>
+
+        <p
+          class="font-mono text-[11px] tracking-[0.14em] uppercase text-brassdark mb-3.5 mt-0 flex items-center gap-2.5 after:content-[''] after:flex-1 after:h-px after:bg-line"
+        >
+          Instrument readings
+        </p>
+        <div
+          class="grid grid-cols-4 max-[640px]:grid-cols-2 gap-px bg-line border border-line mb-9"
+        >
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Humidity
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vHumidity">
+              —<span class="text-[13px] font-normal text-inksoft">%</span>
+            </div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Pressure
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vPressure">
+              —<span class="text-[13px] font-normal text-inksoft">hPa</span>
+            </div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              UV index
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vUv">—</div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Visibility
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vVisibility">
+              —<span class="text-[13px] font-normal text-inksoft">km</span>
+            </div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Sunrise
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vSunrise">
+              —
+            </div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Sunset
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vSunset">
+              —
+            </div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Precipitation
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vPrecip">
+              —<span class="text-[13px] font-normal text-inksoft">mm</span>
+            </div>
+          </div>
+          <div class="bg-paperraised px-4 py-4.5">
+            <div
+              class="font-mono text-[10px] tracking-[0.12em] uppercase text-inksoft mb-2"
+            >
+              Cloud cover
+            </div>
+            <div class="font-mono text-[22px] font-semibold" id="vCloud">
+              —<span class="text-[13px] font-normal text-inksoft">%</span>
+            </div>
+          </div>
+        </div>
+
+        <p
+          class="font-mono text-[11px] tracking-[0.14em] uppercase text-brassdark mb-3.5 mt-0 flex items-center gap-2.5 after:content-[''] after:flex-1 after:h-px after:bg-line"
+        >
+          Seven-day log
+        </p>
+        <div
+          class="grid grid-cols-7 max-[640px]:grid-cols-4 gap-px bg-line border border-line mb-9"
+          id="forecastWrap"
+        ></div>
+      </div>
+
+      <footer
+        class="font-mono text-[11px] text-inksoft text-center pt-3 border-t border-line"
+      >
+        Readings via
+        <a
+          href="https://open-meteo.com"
+          target="_blank"
+          rel="noopener"
+          class="text-teal hover:underline"
+          >Open-Meteo</a
+        >
+        · no API key required
+      </footer>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
